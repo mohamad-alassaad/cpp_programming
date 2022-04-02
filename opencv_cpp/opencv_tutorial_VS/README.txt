@@ -1,3 +1,5 @@
+////////////////////////////                   opencv cpp tutorial in Visual Studio on Windows   /////////////////////////////////////////////////
+
 /*
 * This cpp source file contains all the functions needed in opencv from beginner to advanced levels. 
 * I choosed to write each functionality as a void function in the developement process instead of multiple cpp files to keep the 
