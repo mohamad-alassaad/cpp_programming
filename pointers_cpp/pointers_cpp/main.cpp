@@ -2,8 +2,14 @@
 using namespace std;
 
 
-
-
+void false_swap(double x, double y)
+{
+	// this function will not change the original values of x, and y, because function do copies of the varialbe inside them, and when lifetime of 
+	// the function ends, the varialbes inside it will end also.
+	double tmp = x;
+	x = y; 
+	y = tmp;
+};
 
 void swap(double& x, double& y)
 {
