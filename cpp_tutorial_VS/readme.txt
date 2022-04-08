@@ -1,5 +1,6 @@
 ////////////////////////////////////   OPP course //////////////////////////////////////
-
+Credits: https://www.youtube.com/watch?v=6U6WtWG3NrA&list=PL1DUmTEdeA6KLEvIO0NyrkT91BVle8BOU&index=1
+from video 1 to 23 
 
 1-intro
 oop is based on programming paradigm "Objects"
