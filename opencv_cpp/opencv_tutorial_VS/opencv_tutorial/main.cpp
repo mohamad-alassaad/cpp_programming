@@ -433,6 +433,135 @@ void detect_faces()
 
 
 
+
+void virtual_paint()
+{
+	// Develop a virtual painter 
+	VideoCapture cap(1);
+	Mat img;
+
+	Mat imgHSV, mask,imgColor;
+	int hmin = 0, smin = 0, vmin = 200;
+	int hmax = 50, smax = 50, vmax = 255;
+
+	namedWindow("Track bars", (640, 200));  // using track bar, you can find the perfect values to detect the specific color in the image
+	createTrackbar("Hue Min", "Track bars", &hmin, 255);
+	createTrackbar("Hue Max", "Track bars", &hmax, 255);
+	createTrackbar("sat Min", "Track bars", &smin, 255);
+	createTrackbar("sat Max", "Track bars", &smax, 255);
+	createTrackbar("val Min", "Track bars", &vmin, 255);
+	createTrackbar("val Max", "Track bars", &vmax, 255);
+
+
+	while (true)
+	{
+		cap.read(img);
+		cvtColor(img, imgHSV, COLOR_BGR2HSV);
+		Scalar lower(hmin, smin, vmin);
+		Scalar upper(hmax, smax, vmax);
+		inRange(imgHSV, lower, upper, mask);
+		cout << "Colors are: " << hmin << "," << smin << "," << vmin << "," << hmax << "," << smax << "," << vmax; // I should print them in order to know what color I want to save, in a vector later for detection later.
+		// for example if you want to detect a pen with purple color, run the camera and detect the color by changing the bar values.
+
+		imshow("Image", img);
+		imshow("Image HSV ", imgHSV);
+		imshow("Image Mask ", mask);
+		waitKey(1);
+	}
+}
+
+
+
+
+
+
+
+// Paint virtual 
+
+
+Mat img;  // declare gloable !!! 
+//cout << hmin << "," << smin << "," << vmin << "," << hmax << "," << smax << "," << vmax; 
+vector<vector<int>> myColors{ {124,48,117,143,170,255},		// purple color
+							  { 59,83,106,128,201,238} };   // green color
+								  // I used virtual_paint() function to find them
+vector<Scalar> myColorValues{ {255,0,255},    //Purple
+								{0,255,0} };  //Green
+
+
+
+void getContours1(Mat imgDia)
+{
+	vector<vector<Point>> contours;
+	vector<Vec4i> hierarchy;
+	findContours(imgDia, contours, hierarchy, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
+	//drawContours(img, contours, -1, Scalar(255, 0, 255), 2);  // draw all the contours detected -1
+
+
+	vector<vector<Point>> conPoly(contours.size());//conPoly is a vector that have different values
+	vector<Rect>boundRect(contours.size());
+	string objectType;
+	// filter the noise detected
+	for (int i = 0; i < contours.size(); i++)
+	{
+		int area = contourArea(contours[i]);
+		cout << area << endl;
+		if (area > 1000) //1000
+		{
+			float peri = arcLength(contours[i], true);// finding the bounding box arround these objects or shapes.
+			approxPolyDP(contours[i], conPoly[i], 0.02 * peri, true);  // conPoly is the output.
+			//drawContours(img, contours, i, Scalar(255, 0, 255), 2);    // Here I draw the contours. (by points not lines)
+			drawContours(img, conPoly, i, Scalar(255, 0, 255), 2);  // here I draw  polygone, no difference from the contours drawing because I don't have circle shape for example in here.
+			cout << conPoly[i].size() << endl;// if we check the length on of conPoly, it will give us approximation of the kind of the shape
+			boundRect[i] = boundingRect(conPoly[i]);// finding the bounding rectangle arround it.
+			rectangle(img, boundRect[i].tl(), boundRect[i].br(), Scalar(0, 69, 255), 3);   // ploting the rectangles arround the shapes
+
+
+		}
+	}
+
+}
+
+
+
+void findColor(Mat img)
+{
+	Mat imgHSV;
+	cvtColor(img, imgHSV, COLOR_BGR2HSV);
+
+	for (int i = 0; i < myColors.size(); i++)
+	{
+		Scalar lower(myColors[i][0], myColors[i][1], myColors[i][2]);
+		Scalar upper(myColors[i][3], myColors[i][4], myColors[i][5]);
+		Mat mask;
+		inRange(imgHSV, lower, upper, mask);
+		//imshow(to_string(i), mask); //test them 
+		
+		getContours1(mask);
+	}
+
+
+
+}
+
+
+
+void virtual_paint1()
+{
+	// Develop a virtual painter 
+	VideoCapture cap(0);
+	Mat img;
+	while (true)
+	{
+		cap.read(img);
+		findColor(img);
+		imshow("Image", img);
+		//imshow("Image HSV ", imgHSV);
+		//imshow("Image Mask ", mask);
+		waitKey(1);
+	}
+}
+
+
 int main()
 {
 
@@ -473,7 +602,8 @@ int main()
 	//shapes_detection();
 	////////////   Face detection ////////////////////////
 	//detect_faces();
-
+	//virtual_paint();     // run live camera with bar to detect colors
+	//virtual_paint1();    // it didn't work on my laptop. I didnt continued all the project.
 
 
 	return 0;
